@@ -1,5 +1,6 @@
 import express from 'express'
 import * as diaryService from '../services/diaries.services'
+import { validateDiaryEntryPayload } from '../utils/validator'
 
 const router = express.Router()
 
@@ -13,9 +14,12 @@ router.get('/:id', (req, res) => {
 })
 
 router.post('/', (req, res) => {
-  const { weather, visibility, comment, date } = req.body
-  const newDiaryEntry = diaryService.addDiary({ date, weather, visibility, comment })
-  res.json(newDiaryEntry)
+  const { value, error } = validateDiaryEntryPayload(req.body)
+  if (error != null) {
+    return res.send({ error: error.message })
+  }
+  const newDiaryEntry = diaryService.addDiary(value)
+  return res.json(newDiaryEntry)
 })
 
 export default router
